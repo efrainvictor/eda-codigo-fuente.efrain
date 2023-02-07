@@ -1,0 +1,93 @@
+#include <iostream>
+#include <cmath>
+
+class Node {
+public:
+    int data;
+    Node *left, *right;
+    int level;
+
+    Node(int data) {
+        this->data = data;
+        left = NULL;
+        right = NULL;
+        level = 1;
+    }
+};
+
+class AA_Tree {
+public:
+    Node *root;
+
+    AA_Tree() { root = NULL; }
+
+    int getLevel(Node *node) {
+        return node == NULL ? 0 : node->level;
+    }
+
+    Node* skew(Node *node) {
+        if (node == NULL || node->left == NULL)
+            return node;
+
+        if (getLevel(node->left) == node->level) {
+            Node *temp = node->left;
+            node->left = temp->right;
+            temp->right = node;
+            return temp;
+        }
+
+        return node;
+    }
+
+    Node* split(Node *node) {
+        if (node == NULL || node->right == NULL || node->right->right == NULL)
+            return node;
+
+        if (getLevel(node->right) == node->level) {
+            Node *temp = node->right;
+            node->right = temp->left;
+            temp->left = node;
+            temp->level = node->level + 1;
+            return temp;
+        }
+
+        return node;
+    }
+
+    Node* insert(Node *node, int data) {
+        if (node == NULL)
+            return new Node(data);
+
+        if (data < node->data)
+            node->left = insert(node->left, data);
+        else
+            node->right = insert(node->right, data);
+
+        node = skew(node);
+        node = split(node);
+        return node;
+    }
+
+    void inorder(Node *node) {
+        if (node != NULL) {
+            inorder(node->left);
+            std::cout << node->data << " ";
+            inorder(node->right);
+        }
+    }
+};
+
+int main() {
+    AA_Tree tree;
+    tree.root = tree.insert(tree.root, 10);
+    tree.root = tree.insert(tree.root, 20);
+    tree.root = tree.insert(tree.root, 30);
+    tree.root = tree.insert(tree.root, 40);
+    tree.root = tree.insert(tree.root, 50);
+    tree.root = tree.insert(tree.root, 25);
+
+    std::cout << "El recorrido inOrden del árbol AA es: ";
+    tree.inorder(tree.root);
+
+    return 0;
+}
